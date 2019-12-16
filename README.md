@@ -1,58 +1,79 @@
-# Salesforce App
+# OLI Manager
 
-This guide helps Salesforce developers who are new to Visual Studio Code go from zero to a deployed app using Salesforce Extensions for VS Code and Salesforce CLI.
+This is Lightning Web Component for the Opportunity record page. It allows the Adding, Editing and Deleting of Opportunity Products related to an Opportunity.
 
-## Part 1: Choosing a Development Model
+# How to run the code
 
-There are two types of developer processes or models supported in Salesforce Extensions for VS Code and Salesforce CLI. These models are explained below. Each model offers pros and cons and is fully supported.
+### Installing OLI Manager using a Scratch Org
+  1. Set up your environment. Follow the steps in the Quick Start: [Lightning Web Components](https://trailhead.salesforce.com/content/learn/projects/quick-start-lightning-web-components/) Trailhead project. The steps include:
 
-### Package Development Model
+    * Enable Dev Hub in your Trailhead Playground
+    * Install Salesforce CLI
+    * Install Visual Studio Code
+    * Install the Visual Studio Code Salesforce extensions, including the Lightning Web Components extension
 
-The package development model allows you to create self-contained applications or libraries that are deployed to your org as a single package. These packages are typically developed against source-tracked orgs called scratch orgs. This development model is geared toward a more modern type of software development process that uses org source tracking, source control, and continuous integration and deployment.
+  2. If you haven't already done so, authenticate with your hub org and provide it with an alias (######quixhub in the command below):
 
-If you are starting a new project, we recommend that you consider the package development model. To start developing with this model in Visual Studio Code, see [Package Development Model with VS Code](https://forcedotcom.github.io/salesforcedx-vscode/articles/user-guide/package-development-model). For details about the model, see the [Package Development Model](https://trailhead.salesforce.com/en/content/learn/modules/sfdx_dev_model) Trailhead module.
+  ```bash
+  sfdx force:auth:web:login -d -a quixhub
+  ```
+  3. Clone the Product Manager repository:
 
-If you are developing against scratch orgs, use the command `SFDX: Create Project` (VS Code) or `sfdx force:project:create` (Salesforce CLI)  to create your project. If you used another command, you might want to start over with that command.
+  ```bash
+  git clone https://github.com/rramoso/Product_Manager_LWC.git
+  cd Product_Manager_LWC
+  ```
 
-When working with source-tracked orgs, use the commands `SFDX: Push Source to Org` (VS Code) or `sfdx force:source:push` (Salesforce CLI) and `SFDX: Pull Source from Org` (VS Code) or `sfdx force:source:pull` (Salesforce CLI). Do not use the `Retrieve` and `Deploy` commands with scratch orgs.
+  4. Create a scratch org and provide it with an alias (######productmanager in the command below):
 
-### Org Development Model
+  ```bash
+  sfdx force:org:create -s -f config/project-scratch-def.json -a productmanager
+  ```
 
-The org development model allows you to connect directly to a non-source-tracked org (sandbox, Developer Edition (DE) org, Trailhead Playground, or even a production org) to retrieve and deploy code directly. This model is similar to the type of development you have done in the past using tools such as Force.com IDE or MavensMate.
+  5. Push the app to your scratch org:
 
-To start developing with this model in Visual Studio Code, see [Org Development Model with VS Code](https://forcedotcom.github.io/salesforcedx-vscode/articles/user-guide/org-development-model). For details about the model, see the [Org Development Model](https://trailhead.salesforce.com/content/learn/modules/org-development-model) Trailhead module.
+  ```bash
+  sfdx force:source:push
+  ```
 
-If you are developing against non-source-tracked orgs, use the command `SFDX: Create Project with Manifest` (VS Code) or `sfdx force:project:create --manifest` (Salesforce CLI) to create your project. If you used another command, you might want to start over with this command to create a Salesforce DX project.
+  6. Open the scratch org:
+  ```bash
+  sfdx force:org:open
+  ```
 
-When working with non-source-tracked orgs, use the commands `SFDX: Deploy Source to Org` (VS Code) or `sfdx force:source:deploy` (Salesforce CLI) and `SFDX: Retrieve Source from Org` (VS Code) or `sfdx force:source:retrieve` (Salesforce CLI). The `Push` and `Pull` commands work only on orgs with source tracking (scratch orgs).
+# Architecture
+The OLI Manager component allows to Add/Delete/Edit any opportunity line item inside an Opportunity’s record page.
 
-## The `sfdx-project.json` File
+## OLI Manager
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+This is the main component to be used in an Opportunity record page only. It contains:
 
-The most important parts of this file for getting started are the `sfdcLoginUrl` and `packageDirectories` properties.
+ * Add OLI button: it brings a modal with the Opportunity Line Item record form, after submitting it creates an OLI record related to the Opportunity its in, this is being handled in handleOLICreated function. After the record is created the manager calls for a refresh of the data table.
 
-The `sfdcLoginUrl` specifies the default login URL to use when authorizing an org.
+* it renders the OLI Table passing the opportunity record id as a parameter in the c-tag.
 
-The `packageDirectories` filepath tells VS Code and Salesforce CLI where the metadata files for your project are stored. You need at least one package directory set in your file. The default setting is shown below. If you set the value of the `packageDirectories` property called `path` to `force-app`, by default your metadata goes in the `force-app` directory. If you want to change that directory to something like `src`, simply change the `path` value and make sure the directory you’re pointing to exists.
+## OLI Table
 
-```json
-"packageDirectories" : [
-    {
-      "path": "force-app",
-      "default": true
-    }
-]
-```
+This component renders a datatable of all the Opportunity Line Items related to the Opportunity record page it’s open. It shows the Product Name, Unit Price, Service Date, Quantity and Total fields. It contains an initially disabled Delete button.
 
-## Part 2: Working with Source
+### Show Data
+The data it’s retrieved via a wired function called wiredGetOlis, passing the opportunity record id to an Apex function named getOLIsByOpp. The data returned it’s being handled so the Product.Name field can be reached and returned to the component.
 
-For details about developing against scratch orgs, see the [Package Development Model](https://trailhead.salesforce.com/en/content/learn/modules/sfdx_dev_model) module on Trailhead or [Package Development Model with VS Code](https://forcedotcom.github.io/salesforcedx-vscode/articles/user-guide/package-development-model).
+### Inline Edit
+The inline editing is available to the Unit Price, Service Date and Quantity fields. After modification the user can save or cancel the edit values. If saved the function handleSave is called, and it updates the records using the lightning UI function updateRecord.
 
-For details about developing against orgs that don’t have source tracking, see the [Org Development Model](https://trailhead.salesforce.com/content/learn/modules/org-development-model) module on Trailhead or [Org Development Model with VS Code](https://forcedotcom.github.io/salesforcedx-vscode/articles/user-guide/org-development-model).
+### Delete
+When selecting rows the getSelectedProducts fills an Array named, selectedRecords, with the Ids of the selected records. And enable the Delete button.
 
-## Part 3: Deploying to Production
+After clicking the Delete button, the deleteOLIs function use the lightning UI function deleteRecord to delete all records base in the the selectedRecord array
 
-Don’t deploy your code to production directly from Visual Studio Code. The deploy and retrieve commands do not support transactional operations, which means that a deployment can fail in a partial state. Also, the deploy and retrieve commands don’t run the tests needed for production deployments. The push and pull commands are disabled for orgs that don’t have source tracking, including production orgs.
+### Refresh data
 
-Deploy your changes to production using [packaging](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_dev2gp.htm) or by [converting your source](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_force_source.htm#cli_reference_convert) into metadata format and using the [metadata deploy command](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_force_mdapi.htm#cli_reference_deploy).
+An api function called refreshTable its being use to refresh the datatable data, using the 
+refreshApex function from salesforce, refreshing the wiredOlis property. This function its public so it can be called from outside this component, in the OLI Manager component. This way every time any event made in the component, this function its called and refreshes the data shown.
+
+# If I had more time, what would I like to improve?
+
+I would make sure which is more eficcient to delete, if by the lightning functions used here or via a wired function to an apex class passing by the records id. The research I did on this was short. 
+I would improve the look and the interactions of the buttons and the ShowToastEvent message to include a link to the record when adding a new OLI.
+Create more functionalities like sorting and pagination into the datatable.

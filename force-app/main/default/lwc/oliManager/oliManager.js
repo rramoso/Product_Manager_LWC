@@ -39,11 +39,11 @@ export default class OliManager extends LightningElement {
     }
 
     //Handles the success after saving a new OLI and refreshes the datatable to show new data.
-    handleSuccess(event){
+    handleSuccess(){
         this.dispatchEvent(
             new ShowToastEvent({
                 title: 'Product Created',
-                message: 'Record ID: '+event.detail.Id,
+                message: 'Record created succesfully',
                 variant: 'success'
             })
         );

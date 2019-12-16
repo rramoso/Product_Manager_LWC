@@ -1,7 +1,25 @@
 <template>
-    <lightning-datatable
+    <div class="slds-grid slds-gutters">
+            
+        <div class="slds-col">
+            <span>                    
+                <lightning-button label="Delete"
+                                  icon-name="utility:delete"
+                                  disabled={disableDeleteButton}
+                                  variant="destructive" 
+                                  onclick={deleteOLIs}
+                                  style="margin-left: 40%"></lightning-button>
+            </span>
+        </div>
+    </div>
+    <div style="height: 300px;">
+        <lightning-datatable
             key-field="Id"
             data={olis}
-            columns={columns}>
+            onrowselection = {getSelectedProducts}
+            columns={columns}
+            onsave={handleSave}
+            draft-values={draftValues}>
         </lightning-datatable>
+    </div>
     </template>
