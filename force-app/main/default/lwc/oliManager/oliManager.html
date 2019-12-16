@@ -17,7 +17,9 @@
                                        <lightning-record-form
                                            object-api-name = {sfdcObject}
                                            fields = {fields}
-                                           oncancel = {closeModal}>
+                                           oncancel = {closeModal}
+                                           onsubmit = {handleOLICreated}
+                                           onsuccess = {handleSuccess}>
                                        </lightning-record-form>
                                </div>
                            </div>

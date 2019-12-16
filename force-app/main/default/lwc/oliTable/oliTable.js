@@ -1,4 +1,5 @@
 import { LightningElement, track, api, wire } from 'lwc';
+import { refreshApex } from '@salesforce/apex';
 import getOLIsByOpp from '@salesforce/apex/OpportunityController.getOLIsByOpp';
 
 const columns = [
@@ -14,6 +15,7 @@ export default class OliTable extends LightningElement {
 
     @api oppotunity;
     @track columns = columns;
+    @track draftValues = [];
     @track error;
     @track olis;
 
@@ -46,4 +48,11 @@ export default class OliTable extends LightningElement {
             this.olis = undefined;
         }
     }
+
+    @api
+    refreshTable(){
+
+        return refreshApex(this._wiredOlis);
+    }
+
 }
